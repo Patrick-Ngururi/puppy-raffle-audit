@@ -213,4 +213,38 @@ contract PuppyRaffleTest is Test {
         puppyRaffle.withdrawFees();
         assertEq(address(feeAddress).balance, expectedPrizeAmount);
     }
+
+    function testDenialOfService() public {
+        // Foundry lets us set a gas price
+        vm.txGasPrice(1);
+
+        // Let's enter 100 players
+        uint256 playersNum = 100;
+        address[] memory players = new address[](playersNum);
+        for(uint256 i = 0; i < playersNum; i++) {
+            players[i] = address(i);
+        }
+
+        // See how much gas it costs
+        uint256 gasStart = gasleft();
+        puppyRaffle.enterRaffle{value: entranceFee * players.length}(players);
+        uint256 gasEnd = gasleft();
+        uint256 gasUsedFirst = (gasStart - gasEnd) * tx.gasprice;
+        console.log("Gas cost of the first 100 players: ", gasUsedFirst);
+
+        // Creates another array of 100 players
+        address[] memory playersTwo = new address[](playersNum);
+        for (uint256 i = 0; i < playersTwo.length; i++) {
+            playersTwo[i] = address(i + playersNum);
+        }
+
+        // Gas calculations for second 100 players
+        uint256 gasStartTwo = gasleft();
+        puppyRaffle.enterRaffle{value: entranceFee * players.length}(playersTwo);
+        uint256 gasEndTwo = gasleft();
+        uint256 gasUsedSecond = (gasStartTwo - gasEndTwo) * tx.gasprice;
+        console.log("Gas cost of the second 100 players: ", gasUsedSecond);
+
+        assert(gasUsedFirst < gasUsedSecond);
+    }
 }
