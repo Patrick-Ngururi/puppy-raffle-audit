@@ -143,6 +143,7 @@ contract PuppyRaffle is ERC721, Ownable {
         // @Audit: Total fees the owner should be able to collect. Why the casting? Overflow.
         // @audit integer overflow
         // Fixes: Newer version of solidity, bigger uints
+        // @audit unsafe cast of uint256 to uint 64
         totalFees = totalFees + uint64(fee);
 
         uint256 tokenId = totalSupply();
