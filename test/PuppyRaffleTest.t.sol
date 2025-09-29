@@ -276,6 +276,15 @@ contract PuppyRaffleTest is Test {
         console.log("ending attackerContract balance: ", address(attackerContract).balance);
         console.log("ending puppyRaffle balance: ", address(puppyRaffle).balance);
     }
+
+    function testCantSendMoneyToRaffle() public {
+        address sendAddy = makeAddr("sender");
+        vm.deal(sendAddy, 1 ether);
+        vm.expectRevert();
+        vm.prank(sendAddy);
+        (bool success, ) = payable(address(puppyRaffle)).call{value: 1 ether}("");
+        require(success);
+    }
 }
 
 contract ReentrancyAttacker {
