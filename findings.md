@@ -115,3 +115,23 @@ Consider using a specific version of Solidity in your contracts instead of a wid
 	```solidity
 	pragma solidity ^0.7.6;
 	```
+
+### [I-2] Using an Outdated Version of Solidity is Not Recommended
+​
+solc frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks. We also recommend avoiding complex pragma statement.
+Recommendation
+​
+**Recommendations:**
+​
+Deploy with any of the following Solidity versions:
+​
+    `0.8.18`
+​
+The recommendations take into account:
+​
+    Risks related to recent releases
+    Risks of complex code generation changes
+    Risks of new language features
+    Risks of known bugs
+​
+Use a simple pragma version that allows any of these versions. Consider using the latest version of Solidity for testing.

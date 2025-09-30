@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.7.6;
 // report-written: use of floating pragma is bad!
-// @audit-info also ... why are you using version 0.7?
+// report-written also ... why are you using version 0.7?
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
