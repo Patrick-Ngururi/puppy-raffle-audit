@@ -71,7 +71,7 @@ This is more than 3x more expensive for the second 100 players.
 
 2. Consider using a mapping to check duplicates. This would allow you to check for duplicates in constant time, rather than linear time. You could have each raffle have a uint256 id, and the mapping would be a player address mapped to the raffle Id.
 
-```diff
+```javascript
     +    mapping(address => uint256) public addressToRaffleId;
     +    uint256 public raffleId = 0;
     .
@@ -105,3 +105,13 @@ This is more than 3x more expensive for the second 100 players.
 ```
 
 Alternatively, you could use **[OpenZeppelin's EnumerableSet library](https://docs.openzeppelin.com/contracts/5.x/api/utils#EnumerableSet)**.
+
+### [I-1]: Solidity pragma should be specific, not wide
+​
+Consider using a specific version of Solidity in your contracts instead of a wide version. For example, instead of `pragma solidity ^0.8.0;`, use `pragma solidity 0.8.0;`
+​
+- Found in src/PuppyRaffle.sol [Line: 3](src/PuppyRaffle.sol#L3)
+​
+	```solidity
+	pragma solidity ^0.7.6;
+	```
