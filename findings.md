@@ -115,6 +115,18 @@ Consider using a specific version of Solidity in your contracts instead of a wid
 	```solidity
 	pragma solidity ^0.7.6;
 	```
+# Gas
+​
+### [G-1] Unchanged state variables should be declared constant or immutable
+​
+Reading from storage is much more expensive than reading a constant or immutable variable.
+​
+Instances:
+​
+- `PuppyRaffle::raffleDuration` should be `immutable`
+- `PuppyRaffle::commonImageUri` should be `constant`
+- `PuppyRaffle::rareImageUri` should be `constant`
+- `PuppyRaffle::legendaryImageUri` should be `constant`
 
 ### [I-2] Using an Outdated Version of Solidity is Not Recommended
 ​
