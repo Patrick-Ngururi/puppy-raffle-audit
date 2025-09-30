@@ -147,3 +147,25 @@ The recommendations take into account:
     Risks of known bugs
 ​
 Use a simple pragma version that allows any of these versions. Consider using the latest version of Solidity for testing.
+
+### [I-3] Missing checks for `address(0)` when assigning values to address state variables
+​
+Assigning values to address state variables without checking for `address(0)`.
+​
+- Found in src/PuppyRaffle.sol [Line: 69](src/PuppyRaffle.sol#L69)
+​
+  ```solidity
+          feeAddress = _feeAddress;
+  ```
+​
+- Found in src/PuppyRaffle.sol [Line: 159](src/PuppyRaffle.sol#L159)
+​
+  ```solidity
+          previousWinner = winner;
+  ```
+​
+- Found in src/PuppyRaffle.sol [Line: 182](src/PuppyRaffle.sol#L182)
+​
+  ```solidity
+          feeAddress = newFeeAddress;
+  ```
