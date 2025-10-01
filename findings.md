@@ -71,7 +71,7 @@ This is more than 3x more expensive for the second 100 players.
 
 2. Consider using a mapping to check duplicates. This would allow you to check for duplicates in constant time, rather than linear time. You could have each raffle have a uint256 id, and the mapping would be a player address mapped to the raffle Id.
 
-```javascript
+```diff
     +    mapping(address => uint256) public addressToRaffleId;
     +    uint256 public raffleId = 0;
     .
@@ -127,6 +127,21 @@ Instances:
 - `PuppyRaffle::commonImageUri` should be `constant`
 - `PuppyRaffle::rareImageUri` should be `constant`
 - `PuppyRaffle::legendaryImageUri` should be `constant`
+
+### [G-2] Storage Variables in a Loop Should be Cached
+​
+Everytime you call `players.length` you read from storage, as opposed to memory which is more gas efficient.
+​
+```diff
++ uint256 playersLength = players.length;
+- for (uint256 i = 0; i < players.length - 1; i++) {
++ for (uint256 i = 0; i < playersLength - 1; i++) {
+-    for (uint256 j = i + 1; j < players.length; j++) {
++    for (uint256 j = i + 1; j < playersLength; j++) {
+      require(players[i] != players[j], "PuppyRaffle: Duplicate player");
+}
+}
+```
 
 ### [I-2] Using an Outdated Version of Solidity is Not Recommended
 ​
