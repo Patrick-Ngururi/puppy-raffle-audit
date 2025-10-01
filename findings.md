@@ -34,6 +34,7 @@ A player who has entered the raffle could have a `fallback`/`receive` function t
 ​
 Add the following to `PuppyRaffle.t.sol`
 ​
+
 ```javascript
 contract ReentrancyAttacker {
     PuppyRaffle puppyRaffle;
@@ -100,6 +101,7 @@ function testCanGetRefundReentrancy() public {
 
 **Recommendation:** To prevent this, we should have the `PuppyRaffle::refund` function update the `players` array before making the external call. Additionally we should move the event emission up as well.
 ​
+
     ```diff
     function refund(uint256 playerIndex) public {
        address playerAddress = players[playerIndex];
@@ -284,18 +286,18 @@ Assigning values to address state variables without checking for `address(0)`.
 ​
 - Found in src/PuppyRaffle.sol [Line: 69](src/PuppyRaffle.sol#L69)
 ​
-  ```solidity
+  ```javascript
           feeAddress = _feeAddress;
   ```
 ​
 - Found in src/PuppyRaffle.sol [Line: 159](src/PuppyRaffle.sol#L159)
 ​
-  ```solidity
+  ```javascript
           previousWinner = winner;
   ```
 ​
 - Found in src/PuppyRaffle.sol [Line: 182](src/PuppyRaffle.sol#L182)
 ​
-  ```solidity
+  ```javascript
           feeAddress = newFeeAddress;
   ```
