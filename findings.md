@@ -189,35 +189,35 @@ This is more than 3x more expensive for the second 100 players.
 2. Consider using a mapping to check duplicates. This would allow you to check for duplicates in constant time, rather than linear time. You could have each raffle have a uint256 id, and the mapping would be a player address mapped to the raffle Id.
 
 ```diff
-    +    mapping(address => uint256) public addressToRaffleId;
-    +    uint256 public raffleId = 0;
-    .
-    .
-    .
-    function enterRaffle(address[] memory newPlayers) public payable {
-        require(msg.value == entranceFee * newPlayers.length, "PuppyRaffle: Must send enough to enter raffle");
-        for (uint256 i = 0; i < newPlayers.length; i++) {
-            players.push(newPlayers[i]);
-    +            addressToRaffleId[newPlayers[i]] = raffleId;
++    mapping(address => uint256) public addressToRaffleId;
++    uint256 public raffleId = 0;
+.
+.
+.
+function enterRaffle(address[] memory newPlayers) public payable {
+    require(msg.value == entranceFee * newPlayers.length, "PuppyRaffle: Must send enough to enter raffle");
+    for (uint256 i = 0; i < newPlayers.length; i++) {
+        players.push(newPlayers[i]);
++            addressToRaffleId[newPlayers[i]] = raffleId;
         }
 
-    -        // Check for duplicates
-    +       // Check for duplicates only from the new players
-    +       for (uint256 i = 0; i < newPlayers.length; i++) {
-    +          require(addressToRaffleId[newPlayers[i]] != raffleId, "PuppyRaffle: Duplicate player");
-    +       }
-    -        for (uint256 i = 0; i < players.length; i++) {
-    -            for (uint256 j = i + 1; j < players.length; j++) {
-    -                require(players[i] != players[j], "PuppyRaffle: Duplicate player");
-    -            }
-    -        }
-        emit RaffleEnter(newPlayers);
+-        // Check for duplicates
++       // Check for duplicates only from the new players
++       for (uint256 i = 0; i < newPlayers.length; i++) {
++          require(addressToRaffleId[newPlayers[i]] != raffleId, "PuppyRaffle: Duplicate player");
++       }
+-        for (uint256 i = 0; i < players.length; i++) {
+-            for (uint256 j = i + 1; j < players.length; j++) {
+-                require(players[i] != players[j], "PuppyRaffle: Duplicate player");
+-            }
+-        }
+    emit RaffleEnter(newPlayers);
     }
-    .
-    .
-    .
-    function selectWinner() external {
-    +       raffleId = raffleId + 1;
+.
+.
+.
+function selectWinner() external {
++       raffleId = raffleId + 1;
         require(block.timestamp >= raffleStartTime + raffleDuration, "PuppyRaffle: Raffle not over");
 ```
 
@@ -293,7 +293,7 @@ Everytime you call `players.length` you read from storage, as opposed to memory 
 ### [I-2] Using an Outdated Version of Solidity is Not Recommended
 ​
 solc frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks. We also recommend avoiding complex pragma statement.
-Recommendation
+
 ​
 **Recommendations:**
 ​
@@ -331,3 +331,15 @@ Assigning values to address state variables without checking for `address(0)`.
   ```javascript
           feeAddress = newFeeAddress;
   ```
+
+  ### [I-4] `PuppyRaffle::selectWinner` does not follow CEI, which is not a best practice
+​
+It's best to keep code clean and follow CEI (Checks, Effects, Interactions).
+​
+```diff
+-   (bool success,) = winner.call{value: prizePool}("");
+-   require(success, "PuppyRaffle: Failed to send prize pool to winner");
+        _safeMint(winner, tokenId);
++   (bool success,) = winner.call{value: prizePool}("");
++   require(success, "PuppyRaffle: Failed to send prize pool to winner");
+```
