@@ -232,6 +232,36 @@ Consider using a specific version of Solidity in your contracts instead of a wid
 	```solidity
 	pragma solidity ^0.7.6;
 	```
+
+# Low
+
+### [L-1] `PuppyRaffle::getActivePlayerIndex` returns 0 for non-existent players and players at index 0 causing players to incorrectly think they have not entered the raffle
+
+**Description:** If a player is in the `PuppyRaffle::players` array at index 0, this will return 0, but according to the natspec it will also return zero if the player is NOT in the array.
+​
+```javascript
+    function getActivePlayerIndex(address player) external view returns (uint256) {
+        for (uint256 i = 0; i < players.length; i++) {
+            if (players[i] == player) {
+                return i;
+            }
+        }
+        return 0;
+    }
+```
+
+**Impact:** A player at index 0 may incorrectly think they have not entered the raffle and attempt to enter the raffle again, wasting gas.
+
+**Proof of Concept:**
+​
+1. User enters the raffle, they are the first entrant
+2. `PuppyRaffle::getActivePlayerIndex` returns 0
+3. User thinks they have not entered correctly due to the function documentation.
+
+**Recommended Mitigation:** The easiest recommendation would be to revert if the player is not in the array instead of returning 0.
+​
+You could also reserve the 0th position for any competition, but an even better solution might be to return an `int256` where the function returns -1 if the player is not active.
+
 # Gas
 ​
 ### [G-1] Unchanged state variables should be declared constant or immutable
