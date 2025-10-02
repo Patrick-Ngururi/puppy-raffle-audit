@@ -285,6 +285,71 @@ contract PuppyRaffleTest is Test {
         (bool success, ) = payable(address(puppyRaffle)).call{value: 1 ether}("");
         require(success);
     }
+
+     function testTotalFeesOverflow() public playersEntered {
+        // We finish a raffle of 4 to collect some fees
+        vm.warp(block.timestamp + duration + 1);
+        vm.roll(block.number + 1);
+        puppyRaffle.selectWinner();
+        uint256 startingTotalFees = puppyRaffle.totalFees();
+        // startingTotalFees = 800000000000000000
+
+        // We then have 89 players enter a new raffle
+        uint256 playersNum = 89;
+        address[] memory players = new address[](playersNum);
+        for (uint256 i = 0; i < playersNum; i++) {
+            players[i] = address(i);
+        }
+        puppyRaffle.enterRaffle{value: entranceFee * playersNum}(players);
+        // We end the raffle
+        vm.warp(block.timestamp + duration + 1);
+        vm.roll(block.number + 1);
+
+        // And here is where the issue occurs
+        // We will now have fewer fees even though we just finished a second raffle
+        puppyRaffle.selectWinner();
+
+        uint256 endingTotalFees = puppyRaffle.totalFees();
+        console.log("ending total fees", endingTotalFees);
+        assert(endingTotalFees < startingTotalFees);
+
+        // We are also unable to withdraw any fees because of the require check
+        vm.expectRevert("PuppyRaffle: There are currently players active!");
+        puppyRaffle.withdrawFees();
+    }
+
+    function testReadDuplicateGasCosts() public {
+        vm.txGasPrice(1);
+
+        // We will enter 5 players into the raffle
+        uint256 playersNum = 100;
+        address[] memory players = new address[](playersNum);
+        for (uint256 i = 0; i < playersNum; i++) {
+            players[i] = address(i);
+        }
+        // And see how much gas it cost to enter
+        uint256 gasStart = gasleft();
+        puppyRaffle.enterRaffle{value: entranceFee * playersNum}(players);
+        uint256 gasEnd = gasleft();
+        uint256 gasUsedFirst = (gasStart - gasEnd) * tx.gasprice;
+        console.log("Gas cost of the 1st 100 players:", gasUsedFirst);
+
+        // We will enter 5 more players into the raffle
+        for (uint256 i = 0; i < playersNum; i++) {
+            players[i] = address(i + playersNum);
+        }
+        // And see how much more expensive it is
+        gasStart = gasleft();
+        puppyRaffle.enterRaffle{value: entranceFee * playersNum}(players);
+        gasEnd = gasleft();
+        uint256 gasUsedSecond = (gasStart - gasEnd) * tx.gasprice;
+        console.log("Gas cost of the 2nd 100 players:", gasUsedSecond);
+
+        assert(gasUsedFirst < gasUsedSecond);
+        // Logs:
+        //     Gas cost of the 1st 100 players: 6251420
+        //     Gas cost of the 2nd 100 players: 18066229
+    }
 }
 
 contract ReentrancyAttacker {
