@@ -145,6 +145,7 @@ contract PuppyRaffle is ERC721, Ownable {
         // @Audit: Why the calculation for totalAmountCollected, why not address(this).balance?
         uint256 totalAmountCollected = players.length * entranceFee;
         // @Audit:80% prizePool, 20% fee. Is this correct? Arithmetic may lead to precision loss
+        // Written: Magic numbers 
         uint256 prizePool = (totalAmountCollected * 80) / 100;
         uint256 fee = (totalAmountCollected * 20) / 100;
         // @Audit: Total fees the owner should be able to collect. Why the casting? Overflow.

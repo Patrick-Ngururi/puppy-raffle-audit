@@ -361,3 +361,17 @@ It's best to keep code clean and follow CEI (Checks, Effects, Interactions).
 +   (bool success,) = winner.call{value: prizePool}("");
 +   require(success, "PuppyRaffle: Failed to send prize pool to winner");
 ```
+
+### [I-5] Use of "magic" numbers is discouraged
+​
+It can be confusing to see number literals in a codebase, and it's much more readable if the numbers are given a name.
+​
+Examples:
+```javascript
+    uint256 public constant PRIZE_POOL_PERCENTAGE = 80;
+    uint256 public constant FEE_PERCENTAGE = 20;
+    uint256 public constant POOL_PRECISION = 100;
+​
+    uint256 prizePool = (totalAmountCollected * PRIZE_POOL_PERCENTAGE) / POOL_PRECISION;
+    uint256 fee = (totalAmountCollected * FEE_PERCENTAGE) / POOL_PRECISION;
+```
