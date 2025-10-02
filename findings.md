@@ -371,7 +371,7 @@ Examples:
     uint256 public constant PRIZE_POOL_PERCENTAGE = 80;
     uint256 public constant FEE_PERCENTAGE = 20;
     uint256 public constant POOL_PRECISION = 100;
-​
+
     uint256 prizePool = (totalAmountCollected * PRIZE_POOL_PERCENTAGE) / POOL_PRECISION;
     uint256 fee = (totalAmountCollected * FEE_PERCENTAGE) / POOL_PRECISION;
 ```
