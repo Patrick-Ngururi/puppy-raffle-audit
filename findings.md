@@ -385,19 +385,38 @@ But the potential gas saved isn't worth it if we have to recast and this bug exi
 .
 .
 .
-    function selectWinner() external {
-        require(block.timestamp >= raffleStartTime + raffleDuration, "PuppyRaffle: Raffle not over");
-        require(players.length >= 4, "PuppyRaffle: Need at least 4 players");
-        uint256 winnerIndex =
-            uint256(keccak256(abi.encodePacked(msg.sender, block.timestamp, block.difficulty))) % players.length;
-        address winner = players[winnerIndex];
-        uint256 totalAmountCollected = players.length * entranceFee;
-        uint256 prizePool = (totalAmountCollected * 80) / 100;
-        uint256 fee = (totalAmountCollected * 20) / 100;
+function selectWinner() external {
+    require(block.timestamp >= raffleStartTime + raffleDuration, "PuppyRaffle: Raffle not over");
+    require(players.length >= 4, "PuppyRaffle: Need at least 4 players");
+    uint256 winnerIndex =
+        uint256(keccak256(abi.encodePacked(msg.sender, block.timestamp, block.difficulty))) % players.length;
+    address winner = players[winnerIndex];
+    uint256 totalAmountCollected = players.length * entranceFee;
+    uint256 prizePool = (totalAmountCollected * 80) / 100;
+    uint256 fee = (totalAmountCollected * 20) / 100;
 -       totalFees = totalFees + uint64(fee);
 +       totalFees = totalFees + fee;
 ```
 
+### [M-3] Smart Contract wallet raffle winners without a `receive` or a `fallback` will block the start of a new contest
+​
+**Description:** The `PuppyRaffle::selectWinner` function is responsible for resetting the lottery. However, if the winner is a smart contract wallet that rejects payment, the lottery would not be able to restart.
+​
+Non-smart contract wallet users could reenter, but it might cost them a lot of gas due to the duplicate check.
+​
+**Impact:** The `PuppyRaffle::selectWinner` function could revert many times, and make it very difficult to reset the lottery, preventing a new one from starting.
+​
+Also, true winners would not be able to get paid out, and someone else would win their money!
+​
+**Proof of Concept:**
+1. 10 smart contract wallets enter the lottery without a fallback or receive function.
+2. The lottery ends
+3. The `selectWinner` function wouldn't work, even though the lottery is over!
+​
+**Recommended Mitigation:** There are a few options to mitigate this issue.
+​
+1. Do not allow smart contract wallet entrants (not recommended)
+2. Create a mapping of addresses -> payout so winners can pull their funds out themselves, putting the owners on the winner to claim their prize. (Recommended)
 
 ### [I-1]: Solidity pragma should be specific, not wide
 ​
