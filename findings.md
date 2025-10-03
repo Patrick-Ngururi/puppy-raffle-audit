@@ -398,7 +398,7 @@ function selectWinner() external {
 +       totalFees = totalFees + fee;
 ```
 
-### [M-3] Smart Contract wallet raffle winners without a `receive` or a `fallback` will block the start of a new contest
+### [M-3] Smart Contract wallet raffle winners without a `receive` or a `fallback` function will block the start of a new contest
 ​
 **Description:** The `PuppyRaffle::selectWinner` function is responsible for resetting the lottery. However, if the winner is a smart contract wallet that rejects payment, the lottery would not be able to restart.
 ​
