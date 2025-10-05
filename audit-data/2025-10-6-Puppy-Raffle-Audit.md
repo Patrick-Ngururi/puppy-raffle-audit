@@ -1,37 +1,29 @@
 ---
 title: Protocol Audit Report
-author: Cyfrin.io
+author: Patrick Ngururi
 date: October 5, 2025
 header-includes:
   - \usepackage{titling}
   - \usepackage{graphicx}
 ---
 
-\begin{titlepage}
-    \centering
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=0.5\textwidth]{logo.pdf} 
-    \end{figure}
-    \vspace*{2cm}
-    {\Huge\bfseries Protocol Audit Report\par}
-    \vspace{1cm}
-    {\Large Version 1.0\par}
-    \vspace{2cm}
-    {\Large\itshape Cyfrin.io\par}
-    \vfill
-    {\large \today\par}
-\end{titlepage}
-
-\maketitle
-
+ ![Cat, Patrick's Mascot](Cat.jpg)
 <!-- Your report starts here! -->
 
-Prepared by: [Patrick Ngururi](https://cyfrin.io)
+# **Protocol Audit Report**
+
+## Version 1.0
+
+### *https://github.com/Patrick-Ngururi*
+
+Prepared by: [Patrick Ngururi](https://github.com/Patrick-Ngururi)
 Lead Auditors: 
 - Patrick Ngururi
 
 # Table of Contents
+- [**Protocol Audit Report**](#protocol-audit-report)
+  - [Version 1.0](#version-10)
+    - [*https://github.com/Patrick-Ngururi*](#httpsgithubcompatrick-ngururi)
 - [Table of Contents](#table-of-contents)
 - [Protocol Summary](#protocol-summary)
 - [Disclaimer](#disclaimer)
@@ -42,11 +34,28 @@ Lead Auditors:
 - [Executive Summary](#executive-summary)
   - [Issues found](#issues-found)
 - [Findings](#findings)
-- [High](#high)
-- [Medium](#medium)
-- [Low](#low)
-- [Informational](#informational)
-- [Gas](#gas)
+  - [High](#high)
+    - [\[H-1\] Reentrancy attack in `PuppyRaffle::refund` allows entrant to drain raffle balance](#h-1-reentrancy-attack-in-puppyrafflerefund-allows-entrant-to-drain-raffle-balance)
+    - [\[H-2\] Weak Randomness in `PuppyRaffle::selectWinner` allows users to influence or predict the winner and influence or predict the winning puppy](#h-2-weak-randomness-in-puppyraffleselectwinner-allows-users-to-influence-or-predict-the-winner-and-influence-or-predict-the-winning-puppy)
+    - [\[H-3\] Integer overflow of `PuppyRaffle::totalFees` loses fees](#h-3-integer-overflow-of-puppyraffletotalfees-loses-fees)
+    - [\[H-4\] Possible Hash collision in `PuppyRaffle::abi.encodePacked()` Hash Collision](#h-4-possible-hash-collision-in-puppyraffleabiencodepacked-hash-collision)
+  - [Medium](#medium)
+    - [\[M-1\] Looping through players array to check for duplicates in `PuppyRaffle::enterRaffle` is a potential denial of service (DoS) attack, incrementing gas costs for future entrants](#m-1-looping-through-players-array-to-check-for-duplicates-in-puppyraffleenterraffle-is-a-potential-denial-of-service-dos-attack-incrementing-gas-costs-for-future-entrants)
+    - [\[M-2\] Unsafe cast of `PuppyRaffle::fee` loses fees](#m-2-unsafe-cast-of-puppyrafflefee-loses-fees)
+    - [\[M-3\] Smart Contract wallet raffle winners without a `receive` or a `fallback` function will block the start of a new contest](#m-3-smart-contract-wallet-raffle-winners-without-a-receive-or-a-fallback-function-will-block-the-start-of-a-new-contest)
+  - [Low](#low)
+    - [\[L-1\] `PuppyRaffle::getActivePlayerIndex` returns 0 for non-existent players and players at index 0 causing players to incorrectly think they have not entered the raffle](#l-1-puppyrafflegetactiveplayerindex-returns-0-for-non-existent-players-and-players-at-index-0-causing-players-to-incorrectly-think-they-have-not-entered-the-raffle)
+  - [Informational/Non-Crits](#informationalnon-crits)
+    - [\[I-1\]: Solidity pragma should be specific, not wide](#i-1-solidity-pragma-should-be-specific-not-wide)
+    - [\[I-2\] Using an Outdated Version of Solidity is Not Recommended](#i-2-using-an-outdated-version-of-solidity-is-not-recommended)
+    - [\[I-3\] Missing checks for `address(0)` when assigning values to address state variables](#i-3-missing-checks-for-address0-when-assigning-values-to-address-state-variables)
+    - [\[I-4\] `PuppyRaffle::selectWinner` does not follow CEI, which is not a best practice](#i-4-puppyraffleselectwinner-does-not-follow-cei-which-is-not-a-best-practice)
+    - [\[I-5\] Use of "magic" numbers is discouraged](#i-5-use-of-magic-numbers-is-discouraged)
+    - [\[I-6\] State Changes are Missing Events](#i-6-state-changes-are-missing-events)
+    - [\[I-7\] `PuppyRaffle::_isActivePlayer` is never used and should be removed](#i-7-puppyraffle_isactiveplayer-is-never-used-and-should-be-removed)
+  - [Gas](#gas)
+    - [\[G-1\] Unchanged state variables should be declared constant or immutable](#g-1-unchanged-state-variables-should-be-declared-constant-or-immutable)
+    - [\[G-2\] Storage Variables in a Loop Should be Cached](#g-2-storage-variables-in-a-loop-should-be-cached)
 
 # Protocol Summary
 
@@ -710,8 +719,3 @@ Everytime you call `players.length` you read from storage, as opposed to memory 
 }
 ```
 
-# High
-# Medium
-# Low 
-# Informational
-# Gas 
