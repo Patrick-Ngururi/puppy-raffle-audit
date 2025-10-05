@@ -1,3 +1,109 @@
+---
+title: Protocol Audit Report
+author: Cyfrin.io
+date: October 5, 2025
+header-includes:
+  - \usepackage{titling}
+  - \usepackage{graphicx}
+---
+
+\begin{titlepage}
+    \centering
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.5\textwidth]{logo.pdf} 
+    \end{figure}
+    \vspace*{2cm}
+    {\Huge\bfseries Protocol Audit Report\par}
+    \vspace{1cm}
+    {\Large Version 1.0\par}
+    \vspace{2cm}
+    {\Large\itshape Cyfrin.io\par}
+    \vfill
+    {\large \today\par}
+\end{titlepage}
+
+\maketitle
+
+<!-- Your report starts here! -->
+
+Prepared by: [Patrick Ngururi](https://cyfrin.io)
+Lead Auditors: 
+- Patrick Ngururi
+
+# Table of Contents
+- [Table of Contents](#table-of-contents)
+- [Protocol Summary](#protocol-summary)
+- [Disclaimer](#disclaimer)
+- [Risk Classification](#risk-classification)
+- [Audit Details](#audit-details)
+  - [Scope](#scope)
+  - [Roles](#roles)
+- [Executive Summary](#executive-summary)
+  - [Issues found](#issues-found)
+- [Findings](#findings)
+- [High](#high)
+- [Medium](#medium)
+- [Low](#low)
+- [Informational](#informational)
+- [Gas](#gas)
+
+# Protocol Summary
+
+Protocol does X, Y, Z
+
+# Disclaimer
+
+The YOUR_NAME_HERE team makes all effort to find as many vulnerabilities in the code in the given time period, but holds no responsibilities for the findings provided in this document. A security audit by the team is not an endorsement of the underlying business or product. The audit was time-boxed and the review of the code was solely on the security aspects of the Solidity implementation of the contracts.
+
+# Risk Classification
+
+|            |        | Impact |        |     |
+| ---------- | ------ | ------ | ------ | --- |
+|            |        | High   | Medium | Low |
+|            | High   | H      | H/M    | M   |
+| Likelihood | Medium | H/M    | M      | M/L |
+|            | Low    | M      | M/L    | L   |
+
+We use the [CodeHawks](https://docs.codehawks.com/hawks-auditors/how-to-evaluate-a-finding-severity) severity matrix to determine severity. See the documentation for more details.
+
+# Audit Details 
+
+- Commit Hash: 2a47715b30cf11ca82db148704e67652ad679cd8
+- In Scope:
+
+## Scope 
+
+```
+./src/
+#-- PuppyRaffle.sol
+```
+
+## Roles
+
+Owner - Deployer of the protocol, has the power to change the wallet address to which fees are sent through the `changeFeeAddress` function.
+
+Player - Participant of the raffle, has the power to enter the raffle with the `enterRaffle` function and refund value through `refund` function.
+
+# Executive Summary
+
+I loved auditing this code base. Patrick is a wizard at writing intentionally bad code!
+
+## Issues found
+
+| Severity | Number of issues found |
+| -------- | ---------------------- |
+| High     | 4                      |
+| Medium   | 3                      |
+| Low      | 1                      |
+| Info     | 7                      |
+| Gas      | 2                      |
+| Total    | 17                     |
+
+# Findings
+
+## High
+
 ### [H-1] Reentrancy attack in `PuppyRaffle::refund` allows entrant to drain raffle balance
 
 **Description:** The `PuppyRaffle::refund` function does not follow CEI (Checks, Effects, Interactions) and as a result, enables participants to drain the contract balance.
@@ -234,17 +340,20 @@ abi.encodePacked() should not be used with dynamic types when passing the result
 
 - Found in src/PuppyRaffle.sol [Line: 225](src/PuppyRaffle.sol#L225)
 
-	```solidity
-	            abi.encodePacked(
-	```
+    ```solidity
+                abi.encodePacked(
+    ```
 
 - Found in src/PuppyRaffle.sol [Line: 229](src/PuppyRaffle.sol#L229)
 
-	```solidity
-	                        abi.encodePacked(
-	```
+    ```solidity
+                            abi.encodePacked(
+    ```
 
 </details>
+
+
+## Medium
 
 ### [M-1] Looping through players array to check for duplicates in `PuppyRaffle::enterRaffle` is a potential denial of service (DoS) attack, incrementing gas costs for future entrants
 
@@ -438,7 +547,7 @@ Also, true winners would not be able to get paid out, and someone else would win
 1. Do not allow smart contract wallet entrants (not recommended)
 2. Create a mapping of addresses -> payout so winners can pull their funds out themselves, putting the owners on the winner to claim their prize. (Recommended)
 
-# Low
+## Low
 
 ### [L-1] `PuppyRaffle::getActivePlayerIndex` returns 0 for non-existent players and players at index 0 causing players to incorrectly think they have not entered the raffle
 
@@ -466,6 +575,8 @@ Also, true winners would not be able to get paid out, and someone else would win
 **Recommended Mitigation:** The easiest recommendation would be to revert if the player is not in the array instead of returning 0.
 ​
 You could also reserve the 0th position for any competition, but an even better solution might be to return an `int256` where the function returns -1 if the player is not active.
+
+## Informational/Non-Crits
 
 ### [I-1]: Solidity pragma should be specific, not wide
 ​
@@ -571,7 +682,7 @@ Examples:
 -    }
 ```
 
-# Gas
+## Gas
 ​
 ### [G-1] Unchanged state variables should be declared constant or immutable
 ​
@@ -598,3 +709,9 @@ Everytime you call `players.length` you read from storage, as opposed to memory 
 }
 }
 ```
+
+# High
+# Medium
+# Low 
+# Informational
+# Gas 
