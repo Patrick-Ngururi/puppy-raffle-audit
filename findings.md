@@ -1,6 +1,5 @@
 ### [H-1] Reentrancy attack in `PuppyRaffle::refund` allows entrant to drain raffle balance
 
-​
 **Description:** The `PuppyRaffle::refund` function does not follow CEI (Checks, Effects, Interactions) and as a result, enables participants to drain the contract balance.
 ​
 In the `PuppyRaffle::refund` function, we first make an external call to the `msg.sender` address and only after making that call do we update the `PuppyRaffle::players` array.
@@ -226,6 +225,27 @@ Alternatively, if you want to use an older version of Solidity, you can use a li
 ```
 We additionally want to bring your attention to another attack vector as a result of this line in a future finding.
 
+### [H-4] Possible Hash collision in `PuppyRaffle::abi.encodePacked()` Hash Collision
+
+abi.encodePacked() should not be used with dynamic types when passing the result to a hash function such as `keccak256()`. Use `abi.encode()` instead which will pad items to 32 bytes, preventing hash collisions: https://docs.soliditylang.org/en/v0.8.13/abi-spec.html#non-standard-packed-mode. (e.g. `abi.encodePacked(0x123,0x456)` => `0x123456` => `abi.encodePacked(0x1,0x23456)`, but `abi.encode(0x123,0x456)` => `0x0...1230...456`). Unless there is a compelling reason, `abi.encode` should be preferred. If there is only one argument to `abi.encodePacked()` it can often be cast to `bytes()` or `bytes32()` instead: https://ethereum.stackexchange.com/questions/30912/how-to-compare-strings-in-solidity#answer-82739. If all arguments are strings and or bytes, `bytes.concat()` should be used instead.
+
+<details><summary>2 Found Instances</summary>
+
+
+- Found in src/PuppyRaffle.sol [Line: 225](src/PuppyRaffle.sol#L225)
+
+	```solidity
+	            abi.encodePacked(
+	```
+
+- Found in src/PuppyRaffle.sol [Line: 229](src/PuppyRaffle.sol#L229)
+
+	```solidity
+	                        abi.encodePacked(
+	```
+
+</details>
+
 ### [M-1] Looping through players array to check for duplicates in `PuppyRaffle::enterRaffle` is a potential denial of service (DoS) attack, incrementing gas costs for future entrants
 
 **Description:** The `PuppyRaffle::enterRaffle` function loops through the `players` array to check for duplicates. However, the longer the `PuppyRaffle:players` array is, the more checks a new player will have to make. This means the gas costs for players who enter right when the raffle starts will be dramatically lower than those who enter later. Every additional address in the `players` array is an additional check the loop will have to make.
@@ -418,16 +438,6 @@ Also, true winners would not be able to get paid out, and someone else would win
 1. Do not allow smart contract wallet entrants (not recommended)
 2. Create a mapping of addresses -> payout so winners can pull their funds out themselves, putting the owners on the winner to claim their prize. (Recommended)
 
-### [I-1]: Solidity pragma should be specific, not wide
-​
-Consider using a specific version of Solidity in your contracts instead of a wide version. For example, instead of `pragma solidity ^0.8.0;`, use `pragma solidity 0.8.0;`
-​
-- Found in src/PuppyRaffle.sol [Line: 3](src/PuppyRaffle.sol#L3)
-​
-	```solidity
-	pragma solidity ^0.7.6;
-	```
-
 # Low
 
 ### [L-1] `PuppyRaffle::getActivePlayerIndex` returns 0 for non-existent players and players at index 0 causing players to incorrectly think they have not entered the raffle
@@ -485,6 +495,16 @@ Everytime you call `players.length` you read from storage, as opposed to memory 
 }
 ```
 
+### [I-1]: Solidity pragma should be specific, not wide
+​
+Consider using a specific version of Solidity in your contracts instead of a wide version. For example, instead of `pragma solidity ^0.8.0;`, use `pragma solidity 0.8.0;`
+​
+- Found in src/PuppyRaffle.sol [Line: 3](src/PuppyRaffle.sol#L3)
+​
+```solidity
+pragma solidity ^0.7.6;
+```
+
 ### [I-2] Using an Outdated Version of Solidity is Not Recommended
 ​
 solc frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks. We also recommend avoiding complex pragma statement.
@@ -511,23 +531,23 @@ Assigning values to address state variables without checking for `address(0)`.
 ​
 - Found in src/PuppyRaffle.sol [Line: 69](src/PuppyRaffle.sol#L69)
 ​
-  ```javascript
-          feeAddress = _feeAddress;
-  ```
+```javascript
+feeAddress = _feeAddress;
+```
 ​
 - Found in src/PuppyRaffle.sol [Line: 159](src/PuppyRaffle.sol#L159)
 ​
-  ```javascript
-          previousWinner = winner;
-  ```
+```javascript
+previousWinner = winner;
+```
 ​
 - Found in src/PuppyRaffle.sol [Line: 182](src/PuppyRaffle.sol#L182)
 ​
-  ```javascript
-          feeAddress = newFeeAddress;
-  ```
+```javascript
+feeAddress = newFeeAddress;
+```
 
-  ### [I-4] `PuppyRaffle::selectWinner` does not follow CEI, which is not a best practice
+### [I-4] `PuppyRaffle::selectWinner` does not follow CEI, which is not a best practice
 ​
 It's best to keep code clean and follow CEI (Checks, Effects, Interactions).
 ​
@@ -545,12 +565,12 @@ It can be confusing to see number literals in a codebase, and it's much more rea
 ​
 Examples:
 ```javascript
-    uint256 public constant PRIZE_POOL_PERCENTAGE = 80;
-    uint256 public constant FEE_PERCENTAGE = 20;
-    uint256 public constant POOL_PRECISION = 100;
+uint256 public constant PRIZE_POOL_PERCENTAGE = 80;
+uint256 public constant FEE_PERCENTAGE = 20;
+uint256 public constant POOL_PRECISION = 100;
 
-    uint256 prizePool = (totalAmountCollected * PRIZE_POOL_PERCENTAGE) / POOL_PRECISION;
-    uint256 fee = (totalAmountCollected * FEE_PERCENTAGE) / POOL_PRECISION;
+uint256 prizePool = (totalAmountCollected * PRIZE_POOL_PERCENTAGE) / POOL_PRECISION;
+uint256 fee = (totalAmountCollected * FEE_PERCENTAGE) / POOL_PRECISION;
 ```
 
 ### [I-6] State Changes are Missing Events
