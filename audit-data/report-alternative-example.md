@@ -74,8 +74,7 @@
 
 # Protocol Summary
 
-Puppy Rafle is a protocol dedicated to raffling off puppy NFTs with variying rarities. A portion of entrance
-fees go to the winner, and a fee is taken by another address decided by the protocol owner.
+Protocol does X, Y, Z
 
 # Disclaimer
 
