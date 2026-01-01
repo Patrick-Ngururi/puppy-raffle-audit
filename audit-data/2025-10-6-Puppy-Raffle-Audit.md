@@ -26,7 +26,7 @@
 <body>
 
 <div class="full-page">
-    <img src="./Cat.jpg" alt="Logo">
+    <!--<img src="./Cat.jpg" alt="Logo">-->
     <div>
     <h1>Protocol Audit Report</h1>
     <h3>Prepared by: Patrick Ngururi</h3>
@@ -72,6 +72,10 @@
     - [\[G-1\] Unchanged state variables should be declared constant or immutable](#g-1-unchanged-state-variables-should-be-declared-constant-or-immutable)
     - [\[G-2\] Storage Variables in a Loop Should be Cached](#g-2-storage-variables-in-a-loop-should-be-cached)
 
+<div style="page-break-after: always; visibility: hidden">
+\pagebreak
+</div>
+
 # Protocol Summary
 
 Puppy Rafle is a protocol dedicated to raffling off puppy NFTs with variying rarities. A portion of entrance
@@ -80,6 +84,10 @@ fees go to the winner, and a fee is taken by another address decided by the prot
 # Disclaimer
 
 The Patrick's team makes all effort to find as many vulnerabilities in the code in the given time period, but holds no responsibilities for the findings provided in this document. A security audit by the team is not an endorsement of the underlying business or product. The audit was time-boxed and the review of the code was solely on the security aspects of the Solidity implementation of the contracts.
+
+<div style="page-break-after: always; visibility: hidden">
+\pagebreak
+</div>
 
 # Risk Classification
 
@@ -105,6 +113,10 @@ We use the [CodeHawks](https://docs.codehawks.com/hawks-auditors/how-to-evaluate
 #-- PuppyRaffle.sol
 ```
 
+<div style="page-break-after: always; visibility: hidden">
+\pagebreak
+</div>
+
 ## Roles
 
 Owner - Deployer of the protocol, has the power to change the wallet address to which fees are sent through the `changeFeeAddress` function.
@@ -125,6 +137,10 @@ I loved auditing this code base. Patrick is a wizard at writing intentionally ba
 | Info     | 7                      |
 | Gas      | 2                      |
 | Total    | 17                     |
+
+<div style="page-break-after: always; visibility: hidden">
+\pagebreak
+</div>
 
 # Findings
 
@@ -378,6 +394,9 @@ abi.encodePacked() should not be used with dynamic types when passing the result
 
 </details>
 
+<div style="page-break-after: always; visibility: hidden">
+\pagebreak
+</div>
 
 ## Medium
 
@@ -573,6 +592,10 @@ Also, true winners would not be able to get paid out, and someone else would win
 1. Do not allow smart contract wallet entrants (not recommended)
 2. Create a mapping of addresses -> payout so winners can pull their funds out themselves, putting the owners on the winner to claim their prize. (Recommended)
 
+<div style="page-break-after: always; visibility: hidden">
+\pagebreak
+</div>
+
 ## Low
 
 ### [L-1] `PuppyRaffle::getActivePlayerIndex` returns 0 for non-existent players and players at index 0 causing players to incorrectly think they have not entered the raffle
@@ -601,6 +624,10 @@ Also, true winners would not be able to get paid out, and someone else would win
 **Recommended Mitigation:** The easiest recommendation would be to revert if the player is not in the array instead of returning 0.
 ​
 You could also reserve the 0th position for any competition, but an even better solution might be to return an `int256` where the function returns -1 if the player is not active.
+
+<div style="page-break-after: always; visibility: hidden">
+\pagebreak
+</div>
 
 ## Informational/Non-Crits
 
@@ -707,6 +734,10 @@ Examples:
 -        return false;
 -    }
 ```
+
+<div style="page-break-after: always; visibility: hidden">
+\pagebreak
+</div>
 
 ## Gas
 ​
